@@ -1,0 +1,1 @@
+python /p/projects/dominoes/nicowun/conceptual_tipping/uniform_distribution/socio_climate/MAIN_cluster_earth_system_complete_no_enso.py $SLURM_NTASKS 1.5 4.0 1.5 3.5 4.5 0.2 1.0 1.0 0.2 0.3 0.5 0.15 1.0 0.2 0.15 1.0 0.4 10000 50 2000 100 100 1.0 37.0 0000
