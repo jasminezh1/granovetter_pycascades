@@ -169,28 +169,28 @@ for kk in plus_minus_links:
     print("Wais to Thc:{}".format(kk[0]))
     print("Amaz to Nino:{}".format(kk[1]))
     print("Thc to Amaz:{}".format(kk[2]))
-    # try:
-    #     os.stat("{}".format(long_save_name))
-    # except:
-    #     os.makedirs("{}".format(long_save_name))
+    try:
+        os.stat("{}".format(long_save_name))
+    except:
+        os.makedirs("{}".format(long_save_name))
 
-    # try:
-    #     os.stat("{}/{}_feedbacks".format(long_save_name, namefile))
-    # except:
-    #     os.mkdir("{}/{}_feedbacks".format(long_save_name, namefile))
+    try:
+        os.stat("{}/{}_feedbacks".format(long_save_name, namefile))
+    except:
+        os.mkdir("{}/{}_feedbacks".format(long_save_name, namefile))
 
-    # try:
-    #     os.stat("{}/{}_feedbacks/network_{}_{}_{}".format(long_save_name, namefile, kk[0], kk[1], kk[2]))
-    # except:
-    #     os.mkdir("{}/{}_feedbacks/network_{}_{}_{}".format(long_save_name, namefile, kk[0], kk[1], kk[2]))
+    try:
+        os.stat("{}/{}_feedbacks/network_{}_{}_{}".format(long_save_name, namefile, kk[0], kk[1], kk[2]))
+    except:
+        os.mkdir("{}/{}_feedbacks/network_{}_{}_{}".format(long_save_name, namefile, kk[0], kk[1], kk[2]))
 
-    # try:
-    #     os.stat("{}/{}_feedbacks/network_{}_{}_{}/{}".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4) ))
-    # except:
-    #     os.mkdir("{}/{}_feedbacks/network_{}_{}_{}/{}".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4) ))
+    try:
+        os.stat("{}/{}_feedbacks/network_{}_{}_{}/{}".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4) ))
+    except:
+        os.mkdir("{}/{}_feedbacks/network_{}_{}_{}/{}".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4) ))
 
-    # #save starting conditions
-    # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/empirical_values_care{:.2f}_{}.txt".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4), care, scenario), sys_var, delimiter=" ", fmt="%s")
+    #save starting conditions
+    np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/empirical_values_care{:.2f}_{}.txt".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c), sys_var, delimiter=" ", fmt="%s")
 
     for strength in coupling_strength:
         print("Coupling strength: {}".format(strength))
@@ -209,7 +209,7 @@ for kk in plus_minus_links:
             ######THE SOCIAL MODEL
             #limit_closest = np.amin([limits_gis, limits_thc, limits_wais, limits_amaz]) #closest critical threshold
             #ind_closest = np.argmin([limits_gis, limits_thc, limits_wais, limits_amaz]) #index of closest critical threshold to later identify the tipping element
-            model = gwmodel(threshold_frac,avg_degree,a,c)
+            model = gwmodel(threshold_frac,avg_degree,a+t*0.002,c-t*0.002)
             ###END SOCIAL MODEL
             gmt.append(12 + t/2)
 
@@ -257,38 +257,6 @@ for kk in plus_minus_links:
             #print("Output for time ", t, " is ", output)
 
 
-
-        """
-        output_test = np.array(output)
-        gmt = output_test.T[-1]
-        co2 = output_test.T[-5]
-        print(co2)
-        print(gmt)
-        
-        #Plotting
-        fig, ((ax0)) = plt.subplots(nrows=1, ncols=1, figsize=(10, 8))
-
-        T_final = 1000 #Tf
-        #ax0.plot(np.arange(0, T_final, 1), x_SF[0:T_final], color="red", label="Business as usual")
-        ax0.plot(np.arange(0, T_final, 1), gmt[0:T_final], color="blue", label="Moderately incentivized clean energy")
-        #ax0.plot(np.arange(0, T_final, 1), x_WF[0:T_final], color="green", label="Highly incentivized clean energy")
-
-        ax0.set_xlabel("Time [yrs]")
-        ax0.set_ylabel("$\Delta$ GMT [°C]")
-        #ax0.set_ylim([0, 103])
-
-
-        #sns.despine(bottom=True, left=True) #no right and upper border lines
-        fig.tight_layout()
-        fig.savefig("test_figures/scenarios_{}.png".format(nn))
-        fig.savefig("test_figures/scenarios_{}.pdf".format(nn))
-        # fig.show()
-        fig.clf()
-        plt.close()
-        die
-        """
-        
-        
 
 
         
@@ -356,7 +324,7 @@ for kk in plus_minus_links:
             # plt.clf()
             # plt.close()
         
-
+    print("roots: ", root_x)
 
     
     # # it is necessary to limit the amount of saved files
