@@ -1,0 +1,31 @@
+# Add modules directory to path
+import os
+import sys
+import re
+
+# global imports
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(font_scale=1.)
+import itertools
+import time
+import glob
+
+
+# private imports from sys.path
+from core.evolve import evolve
+
+#private imports for earth system
+from earth_sys.timing_no_enso import timing
+from earth_sys.functions_earth_system_no_enso import global_functions
+from earth_sys.earth_no_enso import earth_system
+
+#private imports from Saverio's model
+from earth_sys.nzmodel import nzmodel
+from gran_wied import gwmodel
+
+newModel = gwmodel(0.5, 10, 0.2, 0.6)
+test = newModel.guess()

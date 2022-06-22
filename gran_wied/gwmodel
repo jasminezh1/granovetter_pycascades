@@ -111,9 +111,6 @@ class distribution():
 
     # vars = sys.argv[1:]
     # a, c = float(vars[0]), float(vars[1])   # active, conditionally active
-
-
-    
     
 
 
