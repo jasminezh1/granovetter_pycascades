@@ -93,7 +93,6 @@ GMT_files = np.concatenate((np.concatenate((GMT_files_1, GMT_files_2)), GMT_file
 ########################Declaration of variables from passed values#######################
 #Must sort out first and second value since this is the actual file and the number of nodes used
 sys_var = np.array(sys.argv[1:], dtype=str) #low sample -3, intermediate sample: -2, high sample: -1
-#print("start ", sys.argv[1])
 
 #TEST SYTEM
 #print("USING TEST SYSTEM")
@@ -167,21 +166,6 @@ else:
 
 #directories for the Monte Carlo simulation
 mc_dir = int(sys_var[-1])
-
-#plus_minus_links = [plus_minus_links[0]]
-#plus_minus_links = [plus_minus_links[1]]
-#plus_minus_links = [plus_minus_links[2]]
-#plus_minus_links = [plus_minus_links[3]]
-#plus_minus_links = [plus_minus_links[4]]
-#plus_minus_links = [plus_minus_links[5]]
-#plus_minus_links = [plus_minus_links[6]]
-#plus_minus_links = [plus_minus_links[7]]
-#plus_minus_links = [plus_minus_links[8]]
-
-
-
-#plus_minus_links = plus_minus_links[6:8]
-#print(plus_minus_links)
 
 
 ################################# MAIN #################################

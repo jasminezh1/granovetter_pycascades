@@ -50,18 +50,6 @@ class global_functions():
         beta = 0.0906
         co2_preind = 280
         factor = 2.0226354355276586 #rescale the GMT such that 400ppm --> 1°C above pre-industrial levels
-        if(co2 == 0):
-            print(" u got co2 = 0 :((")
-            return 0
-        #print("co2 ", co2)
-        #print("what is this ", co2/co2_preind)
-        #print("type ", type(co2))
-        #print("log ", np.log(co2/co2_preind))
-        if(isinstance(co2,np.ndarray)):
-            #co2 = co2.astype(np.float)
-            co2 = co2[0]
-            print("new co2", co2)
-
         gmt = (alpha*np.log(co2/co2_preind) + beta*(np.sqrt(co2)-np.sqrt(co2_preind)))/factor 
         return gmt
 

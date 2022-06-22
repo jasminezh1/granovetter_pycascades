@@ -150,10 +150,6 @@ class nzmodel():
         #convert CO2 to GMT
         gmt = []
         for i in range(0, len(x_arr)):
-
-            if(isinstance(x_arr[i],np.ndarray)):
-                gmt.append(global_functions.co2_gmt(x_arr[i][0]))
-                continue
             gmt.append(global_functions.co2_gmt(x_arr[i]))
             
         gmt = np.array(gmt, dtype=object)
