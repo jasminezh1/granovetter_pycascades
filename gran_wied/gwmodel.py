@@ -15,6 +15,7 @@ class gwmodel():
         self.k = k      # average degree
         self.a = a      # share of active
         self.c = c      # share of contingently active
+        self.roots = []
 
     # distribution threshold
     # r is overall share of active nodes''
@@ -100,20 +101,9 @@ class gwmodel():
 
         # find correct y values, plot
         root_y = [self.line(x) for x in root_x]
-
+        self.root_x = root_x
         #print("root(s): ", root_x)
         return root_x, root_y
 
-
-
-    # **********************
-
-    # rho = 0.5       # threshold fraction
-    # k = 10      # average degree
-
-    # vars = sys.argv[1:]
-    # a, c = float(vars[0]), float(vars[1])   # active, conditionally active
-    
-
-
-    #print("end program")
+    def roots(self):
+        return self.root_x
