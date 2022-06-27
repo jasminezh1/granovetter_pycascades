@@ -10,6 +10,7 @@ sys.path.append('')
 import numpy as np
 import matplotlib
 #matplotlib.use("Agg")
+matplotlib.use( 'tkagg' )
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set(font_scale=1.)
@@ -18,7 +19,7 @@ import time
 import glob
 from PyPDF2 import PdfFileMerger
 from netCDF4 import Dataset
-
+import tkinter
 
 # private imports from sys.path
 from core.evolve import evolve
@@ -208,8 +209,7 @@ for kk in plus_minus_links:
             
             #print("tipped: ", tipped)
             ######THE SOCIAL MODEL
-            #limit_closest = np.amin([limits_gis, limits_thc, limits_wais, limits_amaz]) #closest critical threshold
-            #ind_closest = np.argmin([limits_gis, limits_thc, limits_wais, limits_amaz]) #index of closest critical threshold to later identify the tipping element
+            
             model = gwmodel(threshold_frac,avg_degree,a+tippedElements*0.05,c-tippedElements*0.05)
             ###END SOCIAL MODEL
             gmt.append(12 + t/2)
@@ -221,6 +221,7 @@ for kk in plus_minus_links:
 
             #get back the network of the Earth system
             net = earth_system.earth_network(effective_GMT, strength, kk[0], kk[1], kk[2])
+
             # initialize state
             if t == 2:
                 initial_state = [-1, -1, -1, -1] #initial state
@@ -243,12 +244,6 @@ for kk in plus_minus_links:
             if(len(root_x)==1):
                 granTipped = True
                 #print("oh man!")
-
-            #print("what are these?? true and falses")
-            #print("1: ",net.get_tip_states(ev.get_timeseries()[1][-1])[0])
-            #print("2: ",net.get_tip_states(ev.get_timeseries()[1][-1])[1])
-            #print("3: ",net.get_tip_states(ev.get_timeseries()[1][-1])[2])
-            #print("4: ",net.get_tip_states(ev.get_timeseries()[1][-1])[3])
 
             #saving structure
             output.append([t,
@@ -273,10 +268,13 @@ for kk in plus_minus_links:
         #necessary for break condition
         if len(output) != 0:
             #saving structure
+            #data = np.array(output)
             data = np.array(output, dtype=object)
 
-            # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, 
-            #     kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), data[-1])
+            print("in here")
+
+            np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, 
+                kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), data[-1])
             time = data.T[0]
             state_gis = data.T[1]
             state_thc = data.T[2]
@@ -285,11 +283,11 @@ for kk in plus_minus_links:
             root_series = data.T[-2] #roots ????
             gmt_series = data.T[-1] #gmt series
 
-            # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_gmt.txt".format(long_save_name, namefile, 
-            #     kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), gmt_series)
-            # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_ped.txt".format(long_save_name, namefile, 
-            #     kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series)
-
+            np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_gmt.txt".format(long_save_name, namefile, 
+                kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), gmt_series)
+            # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{}_ped.txt".format(long_save_name, namefile, 
+            #      kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series)
+            # root series is an array, checks out
 
 
             #plotting structure
@@ -323,33 +321,33 @@ for kk in plus_minus_links:
             fig.tight_layout()
             plt.savefig("{}/{}_feedbacks/network_{}_{}_{}/{}/gmtseries_care{}_{}_{:.2f}.pdf".format(long_save_name, namefile, 
                 kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength))
-            plt.show()
+            #plt.show()
             plt.clf()
             #plt.close()
         
     
     # it is necessary to limit the amount of saved files
     # --> compose one pdf file for each network setting and remove the other time-files
-    # current_dir = os.getcwd()
-    # os.chdir("{}/{}_feedbacks/network_{}_{}_{}/{}/".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4)))
-    # pdfs = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*.pdf".format(a, c)), axis=0))
-    # if len(pdfs) != 0.:
-    #     merger = PdfFileMerger()
-    #     for pdf in pdfs:
-    #         merger.append(pdf)
-    #     os.system("rm feedbacks_care{}_{}_*.pdf".format(a, c))
-    #     merger.write("feedbacks_complete_care{}_{}.pdf".format(a, c))
-    #     print("Complete PDFs merged - Part 1")
+    current_dir = os.getcwd()
+    os.chdir("{}/{}_feedbacks/network_{}_{}_{}/{}/".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4)))
+    pdfs = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*.pdf".format(a, c)), axis=0))
+    if len(pdfs) != 0.:
+        merger = PdfFileMerger()
+        for pdf in pdfs:
+            merger.append(pdf)
+        os.system("rm feedbacks_care{}_{}_*.pdf".format(a, c))
+        merger.write("feedbacks_complete_care{}_{}.pdf".format(a, c))
+        print("Complete PDFs merged - Part 1")
 
-    # pdfs = np.array(np.sort(glob.glob("gmtseries_care{}_{}_*.pdf".format(a, c)), axis=0))
-    # if len(pdfs) != 0.:
-    #     merger = PdfFileMerger()
-    #     for pdf in pdfs:
-    #         merger.append(pdf)
-    #     os.system("rm gmtseries_care{}_{}_*.pdf".format(a, c))
-    #     merger.write("gmtseries_complete_care{}_{}.pdf".format(a, c))
-    #     print("Complete PDFs merged - Part 2")
-    # os.chdir(current_dir)
+    pdfs = np.array(np.sort(glob.glob("gmtseries_care{}_{}_*.pdf".format(a, c)), axis=0))
+    if len(pdfs) != 0.:
+        merger = PdfFileMerger()
+        for pdf in pdfs:
+            merger.append(pdf)
+        os.system("rm gmtseries_care{}_{}_*.pdf".format(a, c))
+        merger.write("gmtseries_complete_care{}_{}.pdf".format(a, c))
+        print("Complete PDFs merged - Part 2")
+    os.chdir(current_dir)
 
 print("Finish")
 #end = time.time()
