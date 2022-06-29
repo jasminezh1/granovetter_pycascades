@@ -294,7 +294,12 @@ for kk in plus_minus_links:
                   kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series[0])
             # root series is an array, checks out
             
-            roots = np.array(roots)
+
+
+            # predefine array with correct size, all entries as NaN or super high number
+
+
+            #roots = np.array(roots)
             print(type(roots))
             print(roots)
             np.save("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_TESTINGROOTS.txt".format(long_save_name, namefile, 
@@ -363,3 +368,7 @@ for kk in plus_minus_links:
 print("Finish")
 #end = time.time()
 #print("Time elapsed until Finish: {}s".format(end - start))
+
+
+
+# open file once, loop through array, close the file
