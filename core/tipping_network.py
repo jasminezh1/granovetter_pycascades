@@ -28,6 +28,7 @@ class tipping_network(DiGraph):
     def get_tip_states( self, x):
         tipped = [self.nodes[i]['data'].tip_state()(x[i]) for i in self.nodes()]
         return np.array( tipped )
+        # this returns an array of true and false, for tipped or not
     
     def get_number_tipped( self, x):
         return np.count_nonzero( self.get_tip_states( x ) )

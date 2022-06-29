@@ -81,7 +81,7 @@ else:
 #######################GLOBAL VARIABLES##############################
 #drive coupling strength
 coupling_strength = np.linspace(0.0, 1.0, 11, endpoint=True)
-
+# previusly 11
 
 ########################Declaration of variables from passed values#######################
 #Must sort out first and second value since this is the actual file and the number of nodes used
@@ -199,6 +199,7 @@ for kk in plus_minus_links:
         granTipped = False
         output = []
         gmt = []
+        roots = []
         for t in range(2, int(duration)+2):
             #print(t)
             if os.path.isfile("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, 
@@ -240,6 +241,10 @@ for kk in plus_minus_links:
 
             tippedElements = net.get_number_tipped(ev.get_timeseries()[1][-1])
             root_x, root_y = model.guess()
+            #roots.append([])
+            #root_x = root_x.tolist()
+            roots.append(root_x)
+            #print(" roots ", roots)
 
             if(len(root_x)==1):
                 granTipped = True
@@ -260,7 +265,7 @@ for kk in plus_minus_links:
                            root_x, effective_GMT
                            ])
             
-            print("roots: ", root_x)
+            #print("roots: ", root_x)
             #print("Output for time ", t, " is ", output)
 
 
@@ -271,7 +276,7 @@ for kk in plus_minus_links:
             #data = np.array(output)
             data = np.array(output, dtype=object)
 
-            print("in here")
+            #print("in here")
 
             np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, 
                 kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), data[-1])
@@ -285,10 +290,16 @@ for kk in plus_minus_links:
 
             np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_gmt.txt".format(long_save_name, namefile, 
                 kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), gmt_series)
-            # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{}_ped.txt".format(long_save_name, namefile, 
-            #      kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series)
+            np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_root.txt".format(long_save_name, namefile, 
+                  kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series[0])
             # root series is an array, checks out
-
+            
+            roots = np.array(roots)
+            print(type(roots))
+            print(roots)
+            np.save("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_TESTINGROOTS.txt".format(long_save_name, namefile, 
+                   kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), roots, allow_pickle = True)
+            # ugh!!!! how do i write a list of arrays to a file
 
             #plotting structure
             fig = plt.figure()
@@ -323,7 +334,7 @@ for kk in plus_minus_links:
                 kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength))
             #plt.show()
             plt.clf()
-            #plt.close()
+            plt.close()
         
     
     # it is necessary to limit the amount of saved files
