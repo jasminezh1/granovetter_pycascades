@@ -199,7 +199,11 @@ for kk in plus_minus_links:
         granTipped = False
         output = []
         gmt = []
-        roots = []
+        #roots = []
+        roots = np.empty((duration,3,))
+        roots[:] = np.nan
+
+
         for t in range(2, int(duration)+2):
             #print(t)
             if os.path.isfile("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, 
@@ -243,12 +247,19 @@ for kk in plus_minus_links:
             root_x, root_y = model.guess()
             #roots.append([])
             #root_x = root_x.tolist()
-            roots.append(root_x)
+            #roots.append(root_x)
+
+            #print(type(roots))
             #print(" roots ", roots)
 
             if(len(root_x)==1):
                 granTipped = True
+                roots[t-2][0] = root_x
                 #print("oh man!")
+            else:
+                roots[t-2] = root_x
+
+            #print("t - 2: ", roots[t-2])
 
             #saving structure
             output.append([t,
@@ -277,6 +288,7 @@ for kk in plus_minus_links:
             data = np.array(output, dtype=object)
 
             #print("in here")
+            print(" final roots :", roots)
 
             np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, 
                 kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), data[-1])
@@ -290,8 +302,8 @@ for kk in plus_minus_links:
 
             np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_gmt.txt".format(long_save_name, namefile, 
                 kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), gmt_series)
-            np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_root.txt".format(long_save_name, namefile, 
-                  kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series[0])
+            # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_root.txt".format(long_save_name, namefile, 
+            #       kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series[0])
             # root series is an array, checks out
             
 
@@ -302,8 +314,9 @@ for kk in plus_minus_links:
             #roots = np.array(roots)
             print(type(roots))
             print(roots)
-            np.save("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_TESTINGROOTS.txt".format(long_save_name, namefile, 
-                   kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), roots, allow_pickle = True)
+            np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_TESTINGROOTS.txt".format(long_save_name, namefile, 
+                   kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), roots)
+            # , allow_pickle = True
             # ugh!!!! how do i write a list of arrays to a file
 
             #plotting structure
