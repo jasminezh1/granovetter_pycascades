@@ -193,6 +193,8 @@ for kk in plus_minus_links:
     #save starting conditions
     np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/empirical_values_care{}_{}.txt".format(long_save_name, namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c), sys_var, delimiter=" ", fmt="%s")
 
+    times = []
+
     for strength in coupling_strength:
         print("Coupling strength: {}".format(strength))
         tippedElements = 0
@@ -202,7 +204,7 @@ for kk in plus_minus_links:
         #roots = []
         roots = np.empty((duration,3,))
         roots[:] = np.nan
-
+        first = True
 
         for t in range(2, int(duration)+2):
             #print(t)
@@ -245,9 +247,6 @@ for kk in plus_minus_links:
 
             tippedElements = net.get_number_tipped(ev.get_timeseries()[1][-1])
             root_x, root_y = model.guess()
-            #roots.append([])
-            #root_x = root_x.tolist()
-            #roots.append(root_x)
 
             #print(type(roots))
             #print(" roots ", roots)
@@ -256,6 +255,10 @@ for kk in plus_minus_links:
                 granTipped = True
                 roots[t-2][0] = root_x
                 #print("oh man!")
+                if(first):
+                    times.append(t-2)
+                    #print(root_x)
+                first = False
             else:
                 roots[t-2] = root_x
 
@@ -288,7 +291,7 @@ for kk in plus_minus_links:
             data = np.array(output, dtype=object)
 
             #print("in here")
-            print(" final roots :", roots)
+            #print(" final roots :", roots)
 
             np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, 
                 kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), data[-1])
@@ -312,8 +315,8 @@ for kk in plus_minus_links:
 
 
             #roots = np.array(roots)
-            print(type(roots))
-            print(roots)
+            #print(type(roots))
+            #print(roots)
             np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_TESTINGROOTS.txt".format(long_save_name, namefile, 
                    kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), roots)
             # , allow_pickle = True
@@ -354,7 +357,8 @@ for kk in plus_minus_links:
             plt.clf()
             plt.close()
         
-    
+        
+    print("times: ", times)
     # it is necessary to limit the amount of saved files
     # --> compose one pdf file for each network setting and remove the other time-files
     current_dir = os.getcwd()
@@ -377,6 +381,8 @@ for kk in plus_minus_links:
         merger.write("gmtseries_complete_care{}_{}.pdf".format(a, c))
         print("Complete PDFs merged - Part 2")
     os.chdir(current_dir)
+
+    files = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*.pdf".format(a, c)), axis=0))
 
 print("Finish")
 #end = time.time()

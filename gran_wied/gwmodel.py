@@ -50,6 +50,9 @@ class gwmodel():
         return self.f(x) - self.line(x)
 
     def plot_functions(self, root_x, root_y):
+
+        fig = plt.figure()
+        plt.grid(True)
         a = self.a
         c = self.c
         intervals = 5000
@@ -71,7 +74,9 @@ class gwmodel():
         plt.title("F(t)")
         plt.xlabel('R(t)')
         plt.ylabel('R(t+1) = A + CF(R(t))')
-        plt.show()
+        #plt.show()
+
+        return fig
 
     def solve_root(self, start_guess):
         root_x = fsolve(self.find_intersection, start_guess)
