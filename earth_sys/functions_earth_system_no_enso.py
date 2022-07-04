@@ -34,13 +34,14 @@ class global_functions():
 
     # c = c(GMT) where tipping occurs at sqrt(4/27) ~ 0.38
     # Linear function through two points maps GMT --> c, where x-values represent GMT and y-values represent CUSP-c values
+    # function rescales the critical gmt? tipping element tips at sqrt 4/27
     def CUSPc(x1, x2, x):
         # only returns a value in case GMT is higher than lower boundary of the respective tipping element, otherwise return 0.0 (lower cap), N.B.: No upper cap
         if x >= x1:
             y1 = 0.0
             y2 = np.sqrt(4 / 27)
             y = (y2 - y1) / (x2 - x1) * (x - x1) + y1
-            print("idk what this is exactly: ", y)
+            #print("VALUES ", x1, " ", x2, " ", x, " ", y)
             return y
         else:
             return 0.0

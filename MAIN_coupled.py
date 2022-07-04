@@ -200,29 +200,26 @@ for kk in plus_minus_links:
         tippedElements = 0
         granTipped = False
         output = []
-        gmt = []
+        gmt = [0]
         #roots = []
         roots = np.empty((duration,3,))
         roots[:] = np.nan
         first = True
 
         for t in range(2, int(duration)+2):
-            #print(t)
+
             if os.path.isfile("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, 
                 namefile, kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength)) == True:
                 print("File already computed")
                 break
             
-            
-            #print("tipped: ", tipped)
             ######THE SOCIAL MODEL
             
             newActive = a + tippedElements*0.03
             newContingent = c - tippedElements*0.03
             model = gwmodel(threshold_frac,avg_degree, newActive,newContingent)
+            # need to consider how the model changes c (ie output of running model)
             ###END SOCIAL MODEL
-            gmt.append(12 + t/2)
-
 
             ######THE NATURAL MODEL
             effective_GMT = gmt[-1]
@@ -236,7 +233,7 @@ for kk in plus_minus_links:
                 initial_state = [-1, -1, -1, -1] #initial state
             else:
                 initial_state = [ev.get_timeseries()[1][-1, 0], ev.get_timeseries()[1][-1, 1], ev.get_timeseries()[1][-1, 2], ev.get_timeseries()[1][-1, 3]]
-                print("INITIAL STATE: ", initial_state)
+                #print("INITIAL STATE: ", initial_state)
             ev = evolve(net, initial_state)
             # plotter.network(net)
 
@@ -249,8 +246,18 @@ for kk in plus_minus_links:
             #######END: THE NATURAL MODEL
 
             tippedElements = net.get_number_tipped(ev.get_timeseries()[1][-1])
-            print("ELEMENTS TIPPED: ", tippedElements)
+            #print("ELEMENTS TIPPED: ", tippedElements)
             root_x, root_y = model.guess()
+
+            activeShare = root_x[0]
+            # stop rising temp if certain # of active ppl
+            # also vice versa??
+            # think ab overshoots
+            if(activeShare > 0.75):
+                activeShare = 1
+
+            gmt.append(gmt[-1] + (1 - activeShare) * 0.02)
+
 
             #print(type(roots))
             #print(" roots ", roots)
@@ -295,8 +302,12 @@ for kk in plus_minus_links:
             #print("in here")
             #print(" final roots :", roots)
 
+            print(" what is the issue :" , data[-1])
+            print(" just checking ", effective_GMT)
+            # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, 
+            #     kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), data[-1])
             np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, 
-                kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), data[-1])
+                kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), effective_GMT)
             time = data.T[0]
             state_gis = data.T[1]
             state_thc = data.T[2]
@@ -315,8 +326,8 @@ for kk in plus_minus_links:
             #roots = np.array(roots)
             #print(type(roots))
             #print(roots)
-            np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_TESTINGROOTS.txt".format(long_save_name, namefile, 
-                   kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), roots)
+            # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_TESTINGROOTS.txt".format(long_save_name, namefile, 
+            #        kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), roots)
             # , allow_pickle = True
             # ugh!!!! how do i write a list of arrays to a file
 
@@ -356,7 +367,7 @@ for kk in plus_minus_links:
             plt.close()
         
         
-    print("times: ", times)
+    #print("times: ", times)
     # it is necessary to limit the amount of saved files
     # --> compose one pdf file for each network setting and remove the other time-files
     current_dir = os.getcwd()
@@ -392,3 +403,10 @@ print("Finish")
 #end = time.time()
 #print("Time elapsed until Finish: {}s".format(end - start))
 
+
+
+
+
+# plot a vs t
+# run things :)
+# clusters :(
