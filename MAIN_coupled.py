@@ -80,7 +80,7 @@ else:
 
 #######################GLOBAL VARIABLES##############################
 #drive coupling strength
-coupling_strength = np.linspace(0.0, 1.0, 11, endpoint=True)
+coupling_strength = np.linspace(0.0, 1.0, 6, endpoint=True)
 # previusly 11
 
 ########################Declaration of variables from passed values#######################
@@ -217,7 +217,9 @@ for kk in plus_minus_links:
             #print("tipped: ", tipped)
             ######THE SOCIAL MODEL
             
-            model = gwmodel(threshold_frac,avg_degree,a+tippedElements*0.05,c-tippedElements*0.05)
+            newActive = a + tippedElements*0.03
+            newContingent = c - tippedElements*0.03
+            model = gwmodel(threshold_frac,avg_degree, newActive,newContingent)
             ###END SOCIAL MODEL
             gmt.append(12 + t/2)
 
@@ -234,6 +236,7 @@ for kk in plus_minus_links:
                 initial_state = [-1, -1, -1, -1] #initial state
             else:
                 initial_state = [ev.get_timeseries()[1][-1, 0], ev.get_timeseries()[1][-1, 1], ev.get_timeseries()[1][-1, 2], ev.get_timeseries()[1][-1, 3]]
+                print("INITIAL STATE: ", initial_state)
             ev = evolve(net, initial_state)
             # plotter.network(net)
 
@@ -246,6 +249,7 @@ for kk in plus_minus_links:
             #######END: THE NATURAL MODEL
 
             tippedElements = net.get_number_tipped(ev.get_timeseries()[1][-1])
+            print("ELEMENTS TIPPED: ", tippedElements)
             root_x, root_y = model.guess()
 
             #print(type(roots))
@@ -261,8 +265,6 @@ for kk in plus_minus_links:
                 first = False
             else:
                 roots[t-2] = root_x
-
-            #print("t - 2: ", roots[t-2])
 
             #saving structure
             output.append([t,
@@ -309,10 +311,6 @@ for kk in plus_minus_links:
             #       kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series[0])
             # root series is an array, checks out
             
-
-
-            # predefine array with correct size, all entries as NaN or super high number
-
 
             #roots = np.array(roots)
             #print(type(roots))
@@ -382,12 +380,15 @@ for kk in plus_minus_links:
         print("Complete PDFs merged - Part 2")
     os.chdir(current_dir)
 
-    files = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*.pdf".format(a, c)), axis=0))
+
+    # try to write all the roots together
+    # files = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*_TESTINGROOTS.txt".format(a, c)), axis=0))
+    # with open('file.txt', 'w') as outfile:
+    #     for fname in files:
+    #         with open(fname) as infile:
+    #             outfile.write(infile.read())
 
 print("Finish")
 #end = time.time()
 #print("Time elapsed until Finish: {}s".format(end - start))
 
-
-
-# open file once, loop through array, close the file

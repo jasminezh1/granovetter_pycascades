@@ -40,6 +40,7 @@ class global_functions():
             y1 = 0.0
             y2 = np.sqrt(4 / 27)
             y = (y2 - y1) / (x2 - x1) * (x - x1) + y1
+            print("idk what this is exactly: ", y)
             return y
         else:
             return 0.0
