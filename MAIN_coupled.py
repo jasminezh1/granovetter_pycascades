@@ -200,7 +200,7 @@ for kk in plus_minus_links:
         tippedElements = 0
         granTipped = False
         output = []
-        gmt = []
+        gmt = [0]
         #roots = []
         roots = np.empty((duration,3,))
         roots[:] = np.nan
@@ -219,7 +219,7 @@ for kk in plus_minus_links:
             
             model = gwmodel(threshold_frac,avg_degree,a+tippedElements*0.05,c-tippedElements*0.05)
             ###END SOCIAL MODEL
-            gmt.append(12 + t/2)
+            #gmt.append(12 + t/2)
 
 
             ######THE NATURAL MODEL
@@ -247,6 +247,28 @@ for kk in plus_minus_links:
 
             tippedElements = net.get_number_tipped(ev.get_timeseries()[1][-1])
             root_x, root_y = model.guess()
+
+            activeShare = float(root_x[0])
+            #print("active" , type(activeShare))
+            # stop rising temp if certain # of active ppl
+            # also vice versa??
+            # think ab overshoots
+            #print(type(activeShare))
+            if(activeShare > 0.75):
+                activeShare = 1
+
+            lastTemp = float(gmt[-1])
+            #print("last temp", lastTemp)
+            #print(type(lastTemp))
+            newTemp = float(lastTemp + (1 - activeShare) * 0.5)
+            #print(type(float(newTemp)))
+            #print(" t type", type(t/2))
+            #gmt.append(float(newTemp))
+            #gmt.append((1 - activeShare) * 0.02)
+            #gmt.append((1-t/2)*0.02)
+            gmt.append(newTemp)
+            #gmt.append(gmt[-1] + (1 - activeShare) * 0.02)
+
 
             #print(type(roots))
             #print(" roots ", roots)
@@ -293,6 +315,8 @@ for kk in plus_minus_links:
             #print("in here")
             #print(" final roots :", roots)
 
+            #print(" data ", data[-1])
+            #print(type(data[-1]))
             np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, 
                 kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), data[-1])
             time = data.T[0]
@@ -382,7 +406,7 @@ for kk in plus_minus_links:
         print("Complete PDFs merged - Part 2")
     os.chdir(current_dir)
 
-    #files = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*.pdf".format(a, c)), axis=0))
+    files = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*.pdf".format(a, c)), axis=0))
 
 print("Finish")
 #end = time.time()
