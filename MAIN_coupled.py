@@ -205,6 +205,8 @@ for kk in plus_minus_links:
         roots = np.empty((duration,3,))
         roots[:] = np.nan
         first = True
+        firstRoot = []
+        numTipped = []
 
         for t in range(2, int(duration)+2):
             #print(t)
@@ -249,10 +251,10 @@ for kk in plus_minus_links:
             root_x, root_y = model.guess()
 
             activeShare = float(root_x[0])
+            firstRoot.append(activeShare)
             #print("active" , type(activeShare))
-            # stop rising temp if certain # of active ppl
-            # also vice versa??
-            # think ab overshoots
+            numTipped.append(tippedElements / 4)
+
             #print(type(activeShare))
             if(activeShare > 0.75):
                 activeShare = 1
@@ -260,7 +262,7 @@ for kk in plus_minus_links:
             lastTemp = float(gmt[-1])
             #print("last temp", lastTemp)
             #print(type(lastTemp))
-            newTemp = float(lastTemp + (1 - activeShare) * 0.1)
+            newTemp = float(lastTemp + (1 - activeShare) * 0.3)
             #print(type(float(newTemp)))
             #print(" t type", type(t/2))
             #gmt.append(float(newTemp))
@@ -268,10 +270,6 @@ for kk in plus_minus_links:
             #gmt.append((1-t/2)*0.02)
             gmt.append(newTemp)
             #gmt.append(gmt[-1] + (1 - activeShare) * 0.02)
-
-
-            #print(type(roots))
-            #print(" roots ", roots)
 
             if(len(root_x)==1):
                 granTipped = True
@@ -283,8 +281,6 @@ for kk in plus_minus_links:
                 first = False
             else:
                 roots[t-2] = root_x
-
-            #print("t - 2: ", roots[t-2])
 
             #saving structure
             output.append([t,
@@ -300,20 +296,12 @@ for kk in plus_minus_links:
                            [net.get_tip_states(ev.get_timeseries()[1][-1])[3]].count(True),
                            root_x, effective_GMT
                            ])
-            
-            #print("roots: ", root_x)
-            #print("Output for time ", t, " is ", output)
-
 
         
         #necessary for break condition
         if len(output) != 0:
             #saving structure
-            #data = np.array(output)
             data = np.array(output, dtype=object)
-
-            #print("in here")
-            #print(" final roots :", roots)
 
             #print(" data ", data[-1])
             #print(type(data[-1]))
@@ -333,18 +321,8 @@ for kk in plus_minus_links:
             #       kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series[0])
             # root series is an array, checks out
             
-
-
-            # predefine array with correct size, all entries as NaN or super high number
-
-
-            #roots = np.array(roots)
-            #print(type(roots))
-            #print(roots)
-            np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_TESTINGROOTS.txt".format(long_save_name, namefile, 
+            np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_ALLROOTS.txt".format(long_save_name, namefile, 
                    kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), roots)
-            # , allow_pickle = True
-            # ugh!!!! how do i write a list of arrays to a file
 
             #plotting structure
             fig = plt.figure()
@@ -380,6 +358,23 @@ for kk in plus_minus_links:
             #plt.show()
             plt.clf()
             plt.close()
+
+            
+            # **********************************
+            fig = plt.figure()
+            plt.grid(True)
+            plt.title("Active share")
+            plt.plot(time[0:2000], firstRoot[0:duration], color='r')
+            #plt.plot(time[0:2000], numTipped[0:duration], color='g')
+            plt.xlabel("Time [yr]")
+            plt.ylabel("Share of Active Roots")
+            fig.tight_layout()
+            plt.savefig("{}/{}_feedbacks/network_{}_{}_{}/{}/root_care{}_{}_{:.2f}.pdf".format(long_save_name, namefile, 
+                kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength))
+            #plt.show()
+            plt.clf()
+            plt.close()
+
         
         
     print("times: ", times)
@@ -404,9 +399,20 @@ for kk in plus_minus_links:
         os.system("rm gmtseries_care{}_{}_*.pdf".format(a, c))
         merger.write("gmtseries_complete_care{}_{}.pdf".format(a, c))
         print("Complete PDFs merged - Part 2")
+
+
+    pdfs = np.array(np.sort(glob.glob("root_care{}_{}_*.pdf".format(a, c)), axis=0))
+    if len(pdfs) != 0.:
+        merger = PdfFileMerger()
+        for pdf in pdfs:
+            merger.append(pdf)
+        os.system("rm root_care{}_{}_*.pdf".format(a, c))
+        merger.write("root_complete_care{}_{}.pdf".format(a, c))
+        print("Complete PDFs merged - Part 3")
+
     os.chdir(current_dir)
 
-    files = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*.pdf".format(a, c)), axis=0))
+    
 
 print("Finish")
 #end = time.time()
