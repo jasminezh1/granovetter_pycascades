@@ -260,7 +260,7 @@ for kk in plus_minus_links:
             lastTemp = float(gmt[-1])
             #print("last temp", lastTemp)
             #print(type(lastTemp))
-            newTemp = float(lastTemp + (1 - activeShare) * 0.5)
+            newTemp = float(lastTemp + (1 - activeShare) * 0.1)
             #print(type(float(newTemp)))
             #print(" t type", type(t/2))
             #gmt.append(float(newTemp))
