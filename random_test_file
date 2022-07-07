@@ -1,4 +1,6 @@
 from gran_wied.gwmodel import gwmodel
 
-help = gwmodel(0.5, 10, 0.2, 0.6)
-test = help.guess()
+help = gwmodel(0.5, 10, 0.25, 0.4)
+root_x, root_y = help.guess()
+fig = help.plot_functions(root_x, root_y)
+fig.show()

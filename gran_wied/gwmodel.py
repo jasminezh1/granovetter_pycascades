@@ -74,7 +74,7 @@ class gwmodel():
         plt.title("F(t)")
         plt.xlabel('R(t)')
         plt.ylabel('R(t+1) = A + CF(R(t))')
-        #plt.show()
+        plt.show()
 
         return fig
 
@@ -86,7 +86,7 @@ class gwmodel():
         # deal with issues if only 1 fixed point
         with warnings.catch_warnings():
             warnings.filterwarnings('error')
-            start_guess = [0, 0.5, 1]
+            start_guess = [0.1, 0.5, 0.9]
             try:
                 root_x = self.solve_root(start_guess)
             except:
