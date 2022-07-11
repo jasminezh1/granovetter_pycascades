@@ -35,7 +35,6 @@ from gran_wied.gwmodel import gwmodel
 
 
 #for cluster computations
-#os.chdir("/p/projects/dominoes/nicowun/conceptual_tipping/uniform_distribution/socio_climate")
 os.chdir("/Users/jasminezhang/Documents/PIK22")
 
 #measure time
@@ -84,12 +83,8 @@ coupling_strength = np.linspace(0.0, 1.0, 6, endpoint=True)
 # previusly 11
 
 ########################Declaration of variables from passed values#######################
-#Must sort out first and second value since this is the actual file and the number of nodes used
+#Must sort out first value since this is the actual file 
 sys_var = np.array(sys.argv[1:], dtype=str) #low sample -3, intermediate sample: -2, high sample: -1
-
-#TEST SYTEM
-#print("USING TEST SYSTEM")
-#sys_var = np.array([1.6, 4.75, 3.25, 4.0, 4.0, 0.2, 1.0, 1.0, 0.2, 0.3, 0.5, 0.15, 1.0, 0.2, 0.15, 1.0, 0.4, 4000, 150, 4000, 50, 100, 2400])
 #####################################################################
 
 
@@ -161,8 +156,8 @@ earth_system = earth_system(gis_time, thc_time, wais_time, nino_time, amaz_time,
 
 threshold_frac = 0.5
 avg_degree = 10
-a = 0.12
-c = 0.65
+a = 0.23
+c = 0.5
 
 
 ################################# MAIN LOOP #################################
@@ -252,7 +247,7 @@ for strength in coupling_strength:
         numTipped.append(tippedElements / 4)
 
         # stop the temperature from increasing forever
-        if(activeShare > (a+c-0.05)):
+        if(activeShare > (a+c-0.05)):                   # ********** prematurely stops temp growth
             activeShare = 1
 
         lastTemp = float(gmt[-1])
@@ -293,8 +288,6 @@ for strength in coupling_strength:
         #saving structure
         data = np.array(output, dtype=object)
 
-        #print(" data ", data[-1])
-        #print(type(data[-1]))
         np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, a, c, 
             kk[0], kk[1], kk[2], a, c, strength), data[-1])
         time = data.T[0]
@@ -307,9 +300,6 @@ for strength in coupling_strength:
 
         np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_gmt.txt".format(long_save_name, namefile, a, c,
             kk[0], kk[1], kk[2], a, c, strength), gmt_series)
-        # np.savetxt("{}/{}_feedbacks/network_{}_{}_{}/{}/feedbacks_care{}_{}_{:.2f}_root.txt".format(long_save_name, namefile, 
-        #       kk[0], kk[1], kk[2], str(mc_dir).zfill(4), a, c, strength), root_series[0])
-        # root series is an array, checks out
         
         np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_ALLROOTS.txt".format(long_save_name, namefile, a, c,
                 kk[0], kk[1], kk[2], a, c, strength), roots)
@@ -356,8 +346,8 @@ for strength in coupling_strength:
         plt.title("Coupling strength: {}  A: {}  C: {}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
             np.round(strength, 2), a, c, kk[0], kk[1], kk[2]))
         #plt.title("Active People and Tipped Elements \nfor initial a = {} c = {}".format(a,c))
-        plt.plot(time[0:2000], firstRoot[0:duration], label = "active people", color='r')
-        plt.plot(time[0:2000], numTipped[0:duration], label = "tipped elements", color='g')
+        plt.plot(time[0:duration], firstRoot[0:duration], label = "active people", color='r')
+        plt.plot(time[0:duration], numTipped[0:duration], label = "tipped elements", color='g')
         plt.xlabel("Time [yr]")
         plt.ylabel("Percentage")
         plt.legend(loc='best')
