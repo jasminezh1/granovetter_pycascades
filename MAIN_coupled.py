@@ -2,7 +2,6 @@
 from audioop import avg
 import os
 import sys
-import re
 
 sys.path.append('')
 
@@ -18,10 +17,9 @@ import itertools
 import time
 import glob
 from PyPDF2 import PdfFileMerger
-from netCDF4 import Dataset
 import tkinter
 
-# private imports from sys.path
+# private imports from sys.path  
 from core.evolve import evolve
 
 #private imports for earth system
@@ -59,7 +57,7 @@ unc_temp = np.array([[0.8, 3.0], [1.4, 8.0], [1.0, 3.0], [2.0, 6.0]]) #limit of 
 
 
 #actual real simulation years
-duration = 1000 
+duration = 500 
 # previously 50000
 
 
@@ -117,7 +115,9 @@ if time_scale == True:
     #function call for absolute timing and time conversion
     time_props = timing(tau_gis, tau_thc, tau_wais, tau_amaz, tau_nino)
     gis_time, thc_time, wais_time, nino_time, amaz_time = time_props.timescales()
+    print(" what are tehse time scales : gis: ", gis_time, " thc: ", thc_time, " wais: ", wais_time, " amaz: ", amaz_time)
     conv_fac_gis = time_props.conversion()
+    print("idk what conv fac gis ", conv_fac_gis)
 else:
     #no time scales included
     gis_time = thc_time = wais_time = nino_time = amaz_time = 1.0
@@ -156,8 +156,8 @@ earth_system = earth_system(gis_time, thc_time, wais_time, nino_time, amaz_time,
 
 threshold_frac = 0.5
 avg_degree = 10
-a = 0.23
-c = 0.5
+a = 0.16
+c = 0.6
 
 
 ################################# MAIN LOOP #################################
@@ -204,6 +204,10 @@ for strength in coupling_strength:
     first = True
     firstRoot = []
     numTipped = []
+    closeGis = -1.0
+    closeThc = -1.0
+    closeWais = -1.0
+    closeAmaz = -1.0
 
     for t in range(2, int(duration)+2):
         
@@ -213,7 +217,18 @@ for strength in coupling_strength:
             break
         
         ######THE SOCIAL MODEL
-        model = gwmodel(threshold_frac,avg_degree,a+tippedElements*0.05,c-tippedElements*0.05)
+        #model = gwmodel(threshold_frac,avg_degree,a+tippedElements*0.05,c-tippedElements*0.05)
+
+        # take the negative ones (not yet tipped) between -1 and 0
+        # only care about specific value for negatives (cuz that's how close)
+        changeGis = np.min(closeGis, 0)
+        changeThc = np.min(closeThc, 0)
+        changeWais = np.min(closeWais, 0)
+        changeAmaz = np.min(closeAmaz, 0)
+        totalChange = changeGis + changeThc + changeWais + changeAmaz   # total change is negative
+        print(" change ", totalChange)
+
+        model = gwmodel(threshold_frac,avg_degree,a+tippedElements*0.05 - (totalChange * 0.1),c-tippedElements*0.05 + (totalChange * 0.1))
         ###END SOCIAL MODEL
 
         ######THE NATURAL MODEL
@@ -227,19 +242,31 @@ for strength in coupling_strength:
         if t == 2:
             initial_state = [-1, -1, -1, -1] #initial state
         else:
+            #print("in here")
             initial_state = [ev.get_timeseries()[1][-1, 0], ev.get_timeseries()[1][-1, 1], ev.get_timeseries()[1][-1, 2], ev.get_timeseries()[1][-1, 3]]
         ev = evolve(net, initial_state)
         # plotter.network(net)
+
+        print(" initial state : ", initial_state)
 
         # Timestep to integration; it is also possible to run integration until equilibrium
         timestep = 0.1
 
         #t_end given in years; also possible to use equilibrate method
         t_end = 1.0/conv_fac_gis #simulation length in "real" years, in this case 1 year
+        #print(" this is t_end: ", t_end)
         ev.integrate(timestep, t_end)
         #######END: THE NATURAL MODEL
 
         tippedElements = net.get_number_tipped(ev.get_timeseries()[1][-1])
+        print("NUMBER TIPPED : ", tippedElements)
+        #print(" TEMPERATURE: ", gmt[-1])
+        print(" what is this value ", ev.get_timeseries()[1][-1])
+        closeGis = ev.get_timeseries()[1][-1, 0]
+        closeThc = ev.get_timeseries()[1][-1, 1], 
+        closeWais = ev.get_timeseries()[1][-1, 2]
+        closeAmaz = ev.get_timeseries()[1][-1, 3]
+
         root_x, root_y = model.guess()
 
         activeShare = float(root_x[0])
