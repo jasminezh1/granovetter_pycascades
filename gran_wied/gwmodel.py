@@ -82,19 +82,26 @@ class gwmodel():
         root_x = fsolve(self.find_intersection, start_guess)
         return root_x
 
+#   give the last iteration guess as the starting value 
     def guess(self):
         # deal with issues if only 1 fixed point
         with warnings.catch_warnings():
             warnings.filterwarnings('error')
-            start_guess = [0.1, 0.5, 0.9]
+            start_guess = [0.1, 0.5, 0.9]   # ************** fix
             try:
                 root_x = self.solve_root(start_guess)
+                if(root_x[0] == start_guess[0] or root_x[0] < 0):
+                    start_guess = [0.2, 0.5, 0.8]
+                    root_x = self.solve_root(start_guess)
+                    if(root_x[0] == start_guess[0] or root_x[0] < 0):
+                        start_guess = [0.3, 0.5, 0.7]
+                        root_x = self.solve_root(start_guess)
             except:
                 try:
-                    start_guess = [1]
+                    start_guess = [0.9]
                     root_x = self.solve_root(start_guess)
                 except:
-                    start_guess = [0]
+                    start_guess = [0.1]
                     root_x = self.solve_root(start_guess)
 
             # sometimes duplicates when only 1 root
