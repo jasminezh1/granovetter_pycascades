@@ -57,7 +57,7 @@ unc_temp = np.array([[0.8, 3.0], [1.4, 8.0], [1.0, 3.0], [2.0, 6.0]]) #limit of 
 
 
 #actual real simulation years
-duration = 1000 
+duration = 2000 
 # previously 50000
 
 
@@ -155,7 +155,7 @@ earth_system = earth_system(gis_time, thc_time, wais_time, nino_time, amaz_time,
 threshold_frac = 0.5
 avg_degree = 10
 a = 0.1
-c = 0.5
+c = 0.6
 
 
 ################################# MAIN LOOP #################################
@@ -258,7 +258,10 @@ for strength in coupling_strength:
         closeWais = ev.get_timeseries()[1][-1, 2]
         closeAmaz = ev.get_timeseries()[1][-1, 3]
 
-        root_x, root_y = model.guess()
+        if t==2:
+            root_x, root_y = model.guess(a)
+        else:
+            root_x, root_y = model.guess(firstRoot[-1])
 
         activeShare = float(root_x[0])
         firstRoot.append(activeShare)
