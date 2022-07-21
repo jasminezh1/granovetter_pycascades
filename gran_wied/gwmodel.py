@@ -24,15 +24,15 @@ class gwmodel():
         rho = self.rho
         total_summation = [0]
 
-        for b in range(0, 2*k):
-            inner_max = rho * b / (1 - rho) #float
+        for y in range(0, 2*k):
+            inner_max = rho * y / (1 - rho) #float
             inner_max = int(inner_max)
             inner_sum = 0
 
-            for a in range(0, inner_max):
-                inner_sum += ((k*r)**a)/math.factorial(a)
+            for x in range(0, inner_max):
+                inner_sum += ((k*r)**x)/math.factorial(x)
         
-            outer_term = ((k-k*r)**b)/math.factorial(b)
+            outer_term = ((k-k*r)**y)/math.factorial(y)
             temp = np.multiply(outer_term, inner_sum)
             total_summation += temp
         return 1 - (math.exp(-k) * total_summation)

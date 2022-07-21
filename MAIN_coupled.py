@@ -57,14 +57,14 @@ unc_temp = np.array([[0.8, 3.0], [1.4, 8.0], [1.0, 3.0], [2.0, 6.0]]) #limit of 
 
 
 #actual real simulation years
-duration = 2000 
+duration = 6000 
 # previously 50000
 
 
 #Names to create the respective directories
 namefile = "no"
 if switch_unc_barrett == False and switch_unc == True:
-    long_save_name = "results_3"
+    long_save_name = "results_5"
 elif switch_unc_barrett == True and switch_unc == True:
     long_save_name = "results_barrett_3"
 elif switch_unc_barrett == False and switch_unc == False:
@@ -154,51 +154,75 @@ earth_system = earth_system(gis_time, thc_time, wais_time, nino_time, amaz_time,
 
 threshold_frac = 0.5
 avg_degree = 10
-a = 0.1
-c = 0.6
+a = 0.05
+c = 0.80
 
 
 ################################# MAIN LOOP #################################
 #for kk in plus_minus_links:
+finalTemp = []
+finalTipped = []
+finalActive = []
+
 kk = [-1,0,-1]
+EnvToSocCoupling = np.linspace(0.0, 1, 21, endpoint=True)
 
-print("Wais to Thc:{}".format(kk[0]))
-print("Amaz to Nino:{}".format(kk[1]))
-print("Thc to Amaz:{}".format(kk[2]))
-try:
-    os.stat("{}".format(long_save_name))
-except:
-    os.makedirs("{}".format(long_save_name))
+for ets in EnvToSocCoupling:
 
-try:
-    os.stat("{}/{}_feedbacks".format(long_save_name, namefile))
-except:
-    os.mkdir("{}/{}_feedbacks".format(long_save_name, namefile))
+    #print("Wais to Thc:{}".format(kk[0]))
+    #print("Amaz to Nino:{}".format(kk[1]))
+    #print("Thc to Amaz:{}".format(kk[2]))
+    try:
+        os.stat("{}".format(long_save_name))
+    except:
+        os.makedirs("{}".format(long_save_name))
 
-try:
-    os.stat("{}/{}_feedbacks/{}_{}".format(long_save_name, namefile, a, c))
-except:
-    os.mkdir("{}/{}_feedbacks/{}_{}".format(long_save_name, namefile, a, c))
+    try:
+        os.stat("{}/{}_feedbacks".format(long_save_name, namefile))
+    except:
+        os.mkdir("{}/{}_feedbacks".format(long_save_name, namefile))
 
-try:
-    os.stat("{}/{}_feedbacks/{}_{}/network_{}_{}_{}".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2]))
-except:
-    os.mkdir("{}/{}_feedbacks/{}_{}/network_{}_{}_{}".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2]))
+    try:
+        os.stat("{}/{}_feedbacks/{}_{}".format(long_save_name, namefile, a, c))
+    except:
+        os.mkdir("{}/{}_feedbacks/{}_{}".format(long_save_name, namefile, a, c))
+
+    try:
+        os.stat("{}/{}_feedbacks/{}_{}/network_{}_{}_{}".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2]))
+    except:
+        os.mkdir("{}/{}_feedbacks/{}_{}/network_{}_{}_{}".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2]))
+
+    try:
+        os.stat("{}/{}_feedbacks/{}_{}/network_{}_{}_{}".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2]))
+    except:
+        os.mkdir("{}/{}_feedbacks/{}_{}/network_{}_{}_{}".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2]))
+
+    #save starting conditions
+    np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/empirical_values_care{}_{}.txt".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2], a, c), sys_var, delimiter=" ", fmt="%s")
 
 
-#save starting conditions
-np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/empirical_values_care{}_{}.txt".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2], a, c), sys_var, delimiter=" ", fmt="%s")
+    
+    
+    times = []
 
-times = []
+    #for strength in coupling_strength:
+    strength = 0.2
+    #print("Coupling strength: {:.2f}".format(strength))
 
-for strength in coupling_strength:
-    print("Coupling strength: {:.2f}".format(strength))
+    print("ETS: ", ets)
+
+        
+    if os.path.isfile("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_{:.3f}.txt".format(long_save_name, 
+    namefile, a, c, kk[0], kk[1], kk[2], a, c, strength, ets)) == True:
+        print("File already computed")
+        continue
+
     tippedElements = 0
     granTipped = False
     output = []
     gmt = [0]
-    roots = np.empty((duration,3,))
-    roots[:] = np.nan
+    # roots = np.empty((duration,3,))
+    # roots[:] = np.nan
     first = True
     firstRoot = []
     numTipped = []
@@ -206,11 +230,7 @@ for strength in coupling_strength:
 
     for t in range(2, int(duration)+2):
         
-        if os.path.isfile("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, 
-            namefile, a, c, kk[0], kk[1], kk[2], a, c, strength)) == True:
-            print("File already computed")
-            break
-        
+
         ######THE SOCIAL MODEL
         #model = gwmodel(threshold_frac,avg_degree,a+tippedElements*0.05,c-tippedElements*0.05)
 
@@ -223,7 +243,7 @@ for strength in coupling_strength:
         changeAmaz = np.min(closeAmaz, 0)
         totalChange = changeGis + changeThc + changeWais + changeAmaz + 4  # total change is positive, 0 to 4
 
-        totalChange = totalChange / 4 * c
+        totalChange = totalChange / 4 * c * ets
 
         model = gwmodel(threshold_frac,avg_degree, a+totalChange, c-totalChange)
         ###END SOCIAL MODEL
@@ -267,12 +287,14 @@ for strength in coupling_strength:
         firstRoot.append(activeShare)
         numTipped.append(tippedElements / 4)
 
-        # stop the temperature from increasing forever
-        if(activeShare > (a+c-0.05)):                   # ********** prematurely stops temp growth
-            activeShare = 1
-
         lastTemp = float(gmt[-1])
+        # stop the temperature from increasing forever
+        if(activeShare > (a+c-0.05)):
+            activeShare = 1             # in the future can make >1
+            #newTemp = float(lastTemp - 0.0005)
+        #else:
         newTemp = float(lastTemp + (1 - activeShare) * 0.01)        # vary this 0.01
+        #print(newTemp," ",type(newTemp))
         gmt.append(newTemp)
 
         if(len(root_x)==1):
@@ -280,12 +302,12 @@ for strength in coupling_strength:
             #  unclear but sometimes list sometimes scalar
             if(isinstance(root_x, list)):
                 root_x = root_x[0]
-            roots[t-2][0] = float(root_x)       # used to be root_x[0]
+            #roots[t-2][0] = float(root_x)       # used to be root_x[0]
             if(first):
                 times.append(t-2)
             first = False
-        else:
-            roots[t-2] = root_x
+        #else:
+            #roots[t-2] = root_x
 
         #saving structure
         output.append([t,
@@ -307,8 +329,12 @@ for strength in coupling_strength:
         #saving structure
         data = np.array(output, dtype=object)
 
-        np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}.txt".format(long_save_name, namefile, a, c, 
-            kk[0], kk[1], kk[2], a, c, strength), data[-1])
+        saveGMT = data[-1]
+        if(isinstance(saveGMT[-2],np.ndarray)):
+            saveGMT[-2] = saveGMT[-2][0]
+
+        np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_{:.3f}.txt".format(long_save_name, namefile, a, c, 
+            kk[0], kk[1], kk[2], a, c, strength, ets), saveGMT)
         time = data.T[0]
         state_gis = data.T[1]
         state_thc = data.T[2]
@@ -317,17 +343,17 @@ for strength in coupling_strength:
         root_series = data.T[-2] #roots ????
         gmt_series = data.T[-1] #gmt series
 
-        np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_gmt.txt".format(long_save_name, namefile, a, c,
-            kk[0], kk[1], kk[2], a, c, strength), gmt_series)
+        np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_{:.3f}_gmt.txt".format(long_save_name, namefile, a, c,
+            kk[0], kk[1], kk[2], a, c, strength, ets), gmt_series)
         
-        np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_ALLROOTS.txt".format(long_save_name, namefile, a, c,
-                kk[0], kk[1], kk[2], a, c, strength), roots)
+        # np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_{:.2f}_ALLROOTS.txt".format(long_save_name, namefile, a, c,
+        #         kk[0], kk[1], kk[2], a, c, strength, ets), roots)
 
         #plotting structure
         fig = plt.figure()
         plt.grid(True)
-        plt.title("Coupling strength: {}\n  Wais to Thc:{}  Amaz to Nino:{} Thc to Amaz:{}".format(
-            np.round(strength, 2), kk[0], kk[1], kk[2]))
+        plt.title("Coupling strength: {} ETS: {:.3f}\n  Wais to Thc:{}  Amaz to Nino:{} Thc to Amaz:{}".format(
+            np.round(strength, 2), ets, kk[0], kk[1], kk[2]))
         plt.plot(time, state_gis, label="GIS", color='c')
         plt.plot(time, state_thc, label="THC", color='b')
         plt.plot(time, state_wais, label="WAIS", color='k')
@@ -336,8 +362,8 @@ for strength in coupling_strength:
         plt.ylabel("system feature f [a.u.]")
         plt.legend(loc='best')  # , ncol=5)
         fig.tight_layout()
-        plt.savefig("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}.pdf".format(long_save_name, namefile, a, c,
-            kk[0], kk[1], kk[2], a, c, strength))
+        plt.savefig("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_{:.3f}.pdf".format(long_save_name, namefile, a, c,
+            kk[0], kk[1], kk[2], a, c, strength, ets))
         #plt.show()
         plt.clf()
         plt.close()
@@ -345,45 +371,58 @@ for strength in coupling_strength:
 
         fig = plt.figure()
         plt.grid(True)
-        plt.title("Coupling strength: {}\n  Wais to Thc:{}  Amaz to Nino:{} Thc to Amaz:{}".format(
-            np.round(strength, 2), kk[0], kk[1], kk[2]))
+        plt.title("Coupling strength: {} ETS: {:.3f}\n  Wais to Thc:{}  Amaz to Nino:{} Thc to Amaz:{}".format(
+            np.round(strength, 2), ets, kk[0], kk[1], kk[2]))
         plt.plot(time[0:2000], gmt_series[0:2000], label="GMT", color='r')
         plt.xlabel("Time [yr]")
         plt.ylabel("$\Delta$ GMT [°C]")
         plt.legend(loc='best')  # , ncol=5)
         fig.tight_layout()
-        plt.savefig("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/gmtseries_care{}_{}_{:.2f}.pdf".format(long_save_name, namefile, a, c,
-            kk[0], kk[1], kk[2], a, c, strength))
+        plt.savefig("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/gmtseries_care{}_{}_{:.2f}_{:.3f}.pdf".format(long_save_name, namefile, a, c,
+            kk[0], kk[1], kk[2], a, c, strength, ets))
         #plt.show()
         plt.clf()
         plt.close()
 
         
         # **********************************
-        fig = plt.figure()
+        fig, ax1 = plt.subplots()
         plt.grid(True)
-        plt.title("Coupling strength: {}  A: {}  C: {}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
-            np.round(strength, 2), a, c, kk[0], kk[1], kk[2]))
-        #plt.title("Active People and Tipped Elements \nfor initial a = {} c = {}".format(a,c))
-        plt.plot(time[0:duration], firstRoot[0:duration], label = "active people", color='r')
-        plt.plot(time[0:duration], numTipped[0:duration], label = "tipped elements", color='g')
-        plt.plot(time[0:duration], gmt_series[0:duration], label="GMT", color='b')
-        plt.xlabel("Time [yr]")
-        plt.ylabel("Percentage")
-        plt.legend(loc='best')
+        plt.title("Coupling strength: {}  A: {}  C: {} ETS: {:.3f}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
+            np.round(strength, 2), a, c, ets, kk[0], kk[1], kk[2]))
+        ax1.set_xlabel("Time [yr]")
+        ax1.set_ylabel("Percentage")
+        plot1 = ax1.plot(time[0:duration], firstRoot[0:duration], label = "active people", color='r')
+        plot2 = ax1.plot(time[0:duration], numTipped[0:duration], label = "tipped elements", color='g')
+
+        ax2 = ax1.twinx()
+        ax2.set_ylabel("GMT", color = 'b')
+        plot3 = ax2.plot(time[0:duration], gmt_series[0:duration], label="GMT", color='b')
+        #plt.legend(loc='best')
+        lns = plot1 + plot2 + plot3
+        labels = [l.get_label() for l in lns]
+        plt.legend(lns, labels, loc=0)
+        ax1.set_ylim(top = 1.25)
+        ax2.set_ylim(top = 5)
         fig.tight_layout()
-        plt.savefig("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/root_care{}_{}_{:.2f}.pdf".format(long_save_name, namefile, a, c,
-            kk[0], kk[1], kk[2], a, c, strength))
+        plt.savefig("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/root_care{}_{}_{:.2f}_{:.3f}.pdf".format(long_save_name, namefile, a, c,
+            kk[0], kk[1], kk[2], a, c, strength, ets))
         #plt.show()
         plt.clf()
         plt.close()
 
-    
-    
-#print("times: ", times)
+        
+        
+    #print("times: ", times)
 
-# it is necessary to limit the amount of saved files
-# --> compose one pdf file for each network setting and remove the other time-files
+
+
+    finalTemp.append(gmt_series[-1])
+    finalTipped.append(numTipped[-1])
+    finalActive.append(firstRoot[-1])
+
+#it is necessary to limit the amount of saved files
+#--> compose one pdf file for each network setting and remove the other time-files
 current_dir = os.getcwd()
 os.chdir("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/".format(long_save_name, namefile, a, c, kk[0], kk[1], kk[2]))
 pdfs = np.array(np.sort(glob.glob("feedbacks_care{}_{}_*.pdf".format(a, c)), axis=0))
@@ -415,7 +454,38 @@ if len(pdfs) != 0.:
 
 os.chdir(current_dir)
 
-    
+
+np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_finalTemps.txt".format(long_save_name, namefile, a, c,
+    kk[0], kk[1], kk[2], a, c, strength), finalTemp)  
+np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_finalTipped.txt".format(long_save_name, namefile, a, c,
+    kk[0], kk[1], kk[2], a, c, strength), finalTipped)  
+np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_finalActive.txt".format(long_save_name, namefile, a, c,
+    kk[0], kk[1], kk[2], a, c, strength), finalActive) 
+
+fig, ax1 = plt.subplots()
+plt.grid(True)
+plt.title("Coupling strength: {}  A: {}  C: {}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
+    np.round(strength, 2), a, c, kk[0], kk[1], kk[2]))
+ax1.set_xlabel("Environmental to Social Coupling Strength")
+ax1.set_ylabel("Percentage")
+plot1 = ax1.plot(EnvToSocCoupling, finalActive, label = "active people", color='r')
+plot2 = ax1.plot(EnvToSocCoupling, finalTipped, label = "tipped elements", color='g')
+
+ax2 = ax1.twinx()
+ax2.set_ylabel("GMT", color = 'b')
+plot3 = ax2.plot(EnvToSocCoupling, finalTemp, label="GMT", color='b')
+#plt.legend(loc='best')
+lns = plot1 + plot2 + plot3
+labels = [l.get_label() for l in lns]
+plt.legend(lns, labels, loc=0)
+#ax1.set_ylim(top = 1.25)
+#ax2.set_ylim(top = 5)
+fig.tight_layout()
+plt.savefig("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/ALL_{}_{}_{:.2f}.pdf".format(long_save_name, namefile, a, c,
+    kk[0], kk[1], kk[2], a, c, strength))
+#plt.show()
+plt.clf()
+plt.close()   
 
 print("Finish")
 #end = time.time()
