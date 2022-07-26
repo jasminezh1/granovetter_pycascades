@@ -30,11 +30,23 @@ class gwmodel():
             inner_sum = 0
 
             for x in range(0, inner_max):
-                inner_sum += ((k*r)**x)/math.factorial(x)
+                inner_sum = inner_sum + ((k*r)**x)/math.factorial(x)
         
+            if(isinstance(inner_sum,np.ndarray)):
+                inner_sum = inner_sum[0]
+
+            inner_sum = float(inner_sum)
             outer_term = ((k-k*r)**y)/math.factorial(y)
-            temp = np.multiply(outer_term, inner_sum)
-            total_summation += temp
+            #print("uh:", outer_term)
+            if(isinstance(outer_term,np.ndarray)):
+                outer_term = outer_term[0]
+            
+            outer_term = float(outer_term)
+            #temp = np.multiply(outer_term, inner_sum)
+            temp = float(outer_term * inner_sum)
+            #print("temp:", type(temp))
+            #print("total:", type(total_summation))
+            total_summation = total_summation + temp
         return 1 - (math.exp(-k) * total_summation)
 
     #line from (A,0) to (P,1)

@@ -155,7 +155,7 @@ earth_system = earth_system(gis_time, thc_time, wais_time, nino_time, amaz_time,
 threshold_frac = 0.5
 #avg_degree = 10
 a = 0.14
-ets = 0.1
+ets = 0.5
 c = 0.6
 tr = 0.01
 
@@ -170,7 +170,7 @@ finalTimes = []
 kk = [-1,0,-1]
 #EnvToSocCoupling = np.linspace(0.0, 1, 21, endpoint=True)
 #degrees = np.linspace(5, 15, 11, endpoint=True)
-degrees = [5,7,10,12,15,20,50,100,250]
+degrees = [3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 30, 40, 50]
 
 for avg_degree in degrees:
     allTipped = False
@@ -416,12 +416,9 @@ for avg_degree in degrees:
         #plt.show()
         plt.clf()
         plt.close()
-
         
         
     #print("times: ", times)
-
-
 
     finalTemp.append(gmt_series[-1])
     finalTipped.append(numTipped[-1])

@@ -1,6 +1,109 @@
-from gran_wied.gwmodel import gwmodel
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import matplotlib
+matplotlib.use( 'tkagg' )
+import seaborn as sns
+sns.set(font_scale=1.)
 
-help = gwmodel(0.5, 10, 0.25, 0.4)
-root_x, root_y = help.guess()
-fig = help.plot_functions(root_x, root_y)
-fig.show()
+a = 0.15
+ets = 0.5
+c = 0.6
+tempRate = np.linspace(0.005, 0.05, 21, endpoint=True)
+strength = 0.2
+kk = [-1,0,-1]
+
+finalTemp = [2.899717731121930875e+00, 
+3.189053951928186414e+00,
+3.406608144336388477e+00,
+3.575381583772046401e+00,
+3.719276488627532906e+00,
+3.832390278791109495e+00,
+3.939727867394291039e+00,
+4.027599163673563964e+00,
+4.103433250211334204e+00,
+4.168645748805037243e+00,
+4.236591814135670653e+00,
+4.301237682287012198e+00,
+4.351068537648034251e+00,
+4.390191903403048990e+00,
+4.446999160059604606e+00,
+4.504878903008310509e+00,
+4.542214159293692433e+00,
+4.586619575886373923e+00,
+4.613175385696890451e+00,
+4.652912515826750806e+00,
+4.710120282413909010e+00]
+
+finalTipped = [7.500000000000000000e-01,
+7.500000000000000000e-01,
+7.500000000000000000e-01,
+7.500000000000000000e-01,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00,
+1.000000000000000000e+00]
+
+finalActive = [7.467410771218826460e-01,
+7.469470085334015685e-01,
+7.471004799659063389e-01,
+7.472194385759860502e-01,
+7.525013623345100378e-01,
+7.525554391509093888e-01,
+7.526060345579851374e-01,
+7.526469497337049397e-01,
+7.526819053655501301e-01,
+7.527116781769676024e-01,
+7.527424936841660141e-01,
+7.527715800769033683e-01,
+7.527938491756255290e-01,
+7.528112423548886101e-01,
+7.528363573321609215e-01,
+7.528617787965070640e-01,
+7.528780885045601723e-01,
+7.528973977608360846e-01,
+7.529088995802486473e-01,
+7.529260472285718153e-01,
+7.529506023440140083e-01]
+
+long_save_name = "results_tempRateChanges"
+namefile = "no"
+
+os.chdir("/Users/jasminezhang/Documents/PIK22")
+fig, ax1 = plt.subplots()
+plt.grid(True)
+plt.title("A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
+    a, c, ets, kk[0], kk[1], kk[2]))
+ax1.set_xlabel("Rate of Temperature Change from Active People")
+ax1.set_ylabel("Percentage")
+plot1 = ax1.plot(tempRate, finalActive, label = "active people", color='r')
+plot2 = ax1.plot(tempRate, finalTipped, label = "tipped elements", color='g')
+
+ax2 = ax1.twinx()
+ax2.set_ylabel("GMT", color = 'b')
+plot3 = ax2.plot(tempRate, finalTemp, label="GMT", color='b')
+#plt.legend(loc='best')
+lns = plot1 + plot2 + plot3
+labels = [l.get_label() for l in lns]
+plt.legend(lns, labels, loc=0)
+#ax1.set_ylim(top = 1.25)
+#ax2.set_ylim(top = 5)
+fig.tight_layout()
+plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/ALL_{:.2f}_{:.2f}_{:.2f}.pdf".format(long_save_name, namefile, a, c,
+    kk[0], kk[1], kk[2], a, c, strength))
+#plt.show()
+plt.clf()
+plt.close()   
