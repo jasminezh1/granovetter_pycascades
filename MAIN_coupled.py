@@ -154,7 +154,7 @@ earth_system = earth_system(gis_time, thc_time, wais_time, nino_time, amaz_time,
 
 threshold_frac = 0.5
 avg_degree = 10
-a = 0.15
+a = 0.14
 ets = 0.1
 c = 0.6
 
@@ -164,12 +164,14 @@ c = 0.6
 finalTemp = []
 finalTipped = []
 finalActive = []
+finalTimes = []
 
 kk = [-1,0,-1]
 #EnvToSocCoupling = np.linspace(0.0, 1, 21, endpoint=True)
 tempRate = np.linspace(0.005, 0.05, 21, endpoint=True)
 
 for tr in tempRate:
+    allTipped = False
 
     #print("Wais to Thc:{}".format(kk[0]))
     #print("Amaz to Nino:{}".format(kk[1]))
@@ -275,6 +277,10 @@ for tr in tempRate:
         closeThc = ev.get_timeseries()[1][-1, 1], 
         closeWais = ev.get_timeseries()[1][-1, 2]
         closeAmaz = ev.get_timeseries()[1][-1, 3]
+
+        if((not allTipped) and tippedElements==4):
+            finalTimes.append(t-1)
+            allTipped = True
 
         if t==2:
             root_x, root_y = model.guess(a)
@@ -459,6 +465,31 @@ np.savetxt("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_
     kk[0], kk[1], kk[2], a, c, strength), finalTipped)  
 np.savetxt("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_finalActive.txt".format(long_save_name, namefile, a, c,
     kk[0], kk[1], kk[2], a, c, strength), finalActive) 
+
+fig, ax1 = plt.subplots()
+plt.grid(True)
+plt.title("A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
+    a, c, ets, kk[0], kk[1], kk[2]))
+ax1.set_xlabel("Rate of Temperature Change from Active People")
+ax1.set_ylabel("Time All Elements Tipped")
+plot1 = ax1.plot(tempRate, finalTimes, label = "time", color='r')
+#plot2 = ax1.plot(tempRate, finalTipped, label = "tipped elements", color='g')
+
+ax2 = ax1.twinx()
+ax2.set_ylabel("GMT", color = 'b')
+plot3 = ax2.plot(tempRate, finalTemp, label="GMT", color='b')
+#plt.legend(loc='best')
+lns = plot1 + plot3
+labels = [l.get_label() for l in lns]
+plt.legend(lns, labels, loc=0)
+#ax1.set_ylim(top = 1.25)
+#ax2.set_ylim(top = 5)
+fig.tight_layout()
+plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/ALL2_{:.2f}_{:.2f}_{:.2f}.pdf".format(long_save_name, namefile, a, c,
+    kk[0], kk[1], kk[2], a, c, strength))
+#plt.show()
+plt.clf()
+plt.close()   
 
 fig, ax1 = plt.subplots()
 plt.grid(True)
