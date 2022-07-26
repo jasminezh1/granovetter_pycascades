@@ -22,7 +22,7 @@ class gwmodel():
     def f(self, r):
         k = self.k
         rho = self.rho
-        total_summation = [0]
+        total_summation = 0
 
         for y in range(0, 2*k):
             inner_max = rho * y / (1 - rho) #float

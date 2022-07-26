@@ -64,7 +64,7 @@ duration = 6000
 #Names to create the respective directories
 namefile = "no"
 if switch_unc_barrett == False and switch_unc == True:
-    long_save_name = "results_tempRateChanges"
+    long_save_name = "results_degreeChanges"
 elif switch_unc_barrett == True and switch_unc == True:
     long_save_name = "results_barrett_3"
 elif switch_unc_barrett == False and switch_unc == False:
@@ -153,10 +153,11 @@ earth_system = earth_system(gis_time, thc_time, wais_time, nino_time, amaz_time,
 #Create Social Model
 
 threshold_frac = 0.5
-avg_degree = 10
+#avg_degree = 10
 a = 0.14
 ets = 0.1
 c = 0.6
+tr = 0.01
 
 
 ################################# MAIN LOOP #################################
@@ -168,9 +169,10 @@ finalTimes = []
 
 kk = [-1,0,-1]
 #EnvToSocCoupling = np.linspace(0.0, 1, 21, endpoint=True)
-tempRate = np.linspace(0.005, 0.05, 21, endpoint=True)
+#degrees = np.linspace(5, 15, 11, endpoint=True)
+degrees = [5,7,10,12,15,20,50,100,250]
 
-for tr in tempRate:
+for avg_degree in degrees:
     allTipped = False
 
     #print("Wais to Thc:{}".format(kk[0]))
@@ -212,7 +214,7 @@ for tr in tempRate:
     strength = 0.2
     #print("Coupling strength: {:.2f}".format(strength))
 
-    print("tr: ", tr)
+    print("degree: ", avg_degree)
 
         
     # if os.path.isfile("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_{:.3f}.txt".format(long_save_name, 
@@ -337,8 +339,8 @@ for tr in tempRate:
         if(isinstance(saveGMT[-2],np.ndarray)):
             saveGMT[-2] = saveGMT[-2][0]
 
-        np.savetxt("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{:.3f}.txt".format(long_save_name, namefile, a, c, 
-            kk[0], kk[1], kk[2], a, c, strength, ets, tr), saveGMT)
+        np.savetxt("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{}.txt".format(long_save_name, namefile, a, c, 
+            kk[0], kk[1], kk[2], a, c, strength, ets, avg_degree), saveGMT)
         time = data.T[0]
         state_gis = data.T[1]
         state_thc = data.T[2]
@@ -347,8 +349,8 @@ for tr in tempRate:
         root_series = data.T[-2] #roots ????
         gmt_series = data.T[-1] #gmt series
 
-        np.savetxt("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{:.3f}_gmt.txt".format(long_save_name, namefile, a, c,
-            kk[0], kk[1], kk[2], a, c, strength, ets, tr), gmt_series)
+        np.savetxt("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{}_gmt.txt".format(long_save_name, namefile, a, c,
+            kk[0], kk[1], kk[2], a, c, strength, ets, avg_degree), gmt_series)
         
         # np.savetxt("{}/{}_feedbacks/{}_{}/network_{}_{}_{}/feedbacks_care{}_{}_{:.2f}_{:.2f}_ALLROOTS.txt".format(long_save_name, namefile, a, c,
         #         kk[0], kk[1], kk[2], a, c, strength, ets), roots)
@@ -356,8 +358,8 @@ for tr in tempRate:
         #plotting structure
         fig = plt.figure()
         plt.grid(True)
-        plt.title("Temp Rate: {:.3f} A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wais to Thc:{}  Amaz to Nino:{} Thc to Amaz:{}".format(
-            tr, a, c, ets, kk[0], kk[1], kk[2]))
+        plt.title("Degree: {} A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wais to Thc:{}  Amaz to Nino:{} Thc to Amaz:{}".format(
+            avg_degree, a, c, ets, kk[0], kk[1], kk[2]))
         plt.plot(time, state_gis, label="GIS", color='c')
         plt.plot(time, state_thc, label="THC", color='b')
         plt.plot(time, state_wais, label="WAIS", color='k')
@@ -366,8 +368,8 @@ for tr in tempRate:
         plt.ylabel("system feature f [a.u.]")
         plt.legend(loc='best')  # , ncol=5)
         fig.tight_layout()
-        plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{:.3f}.pdf".format(long_save_name, namefile, a, c,
-            kk[0], kk[1], kk[2], a, c, strength, ets, tr))
+        plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{}.pdf".format(long_save_name, namefile, a, c,
+            kk[0], kk[1], kk[2], a, c, strength, ets, avg_degree))
         #plt.show()
         plt.clf()
         plt.close()
@@ -375,15 +377,15 @@ for tr in tempRate:
 
         fig = plt.figure()
         plt.grid(True)
-        plt.title("Temp Rate: {:.3f} A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wais to Thc:{}  Amaz to Nino:{} Thc to Amaz:{}".format(
-            tr, a, c, ets, kk[0], kk[1], kk[2]))
+        plt.title("Degree: {} A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wais to Thc:{}  Amaz to Nino:{} Thc to Amaz:{}".format(
+            avg_degree, a, c, ets, kk[0], kk[1], kk[2]))
         plt.plot(time, gmt_series, label="GMT", color='r')
         plt.xlabel("Time [yr]")
         plt.ylabel("$\Delta$ GMT [°C]")
         plt.legend(loc='best')  # , ncol=5)
         fig.tight_layout()
-        plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/gmtseries_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{:.3f}.pdf".format(long_save_name, namefile, a, c,
-            kk[0], kk[1], kk[2], a, c, strength, ets, tr))
+        plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/gmtseries_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{}.pdf".format(long_save_name, namefile, a, c,
+            kk[0], kk[1], kk[2], a, c, strength, ets, avg_degree))
         #plt.show()
         plt.clf()
         plt.close()
@@ -392,8 +394,8 @@ for tr in tempRate:
         # **********************************
         fig, ax1 = plt.subplots()
         plt.grid(True)
-        plt.title("Temp Rate {:.3f} A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
-            tr, a, c, ets, kk[0], kk[1], kk[2]))
+        plt.title("Degree: {} A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
+            avg_degree, a, c, ets, kk[0], kk[1], kk[2]))
         ax1.set_xlabel("Time [yr]")
         ax1.set_ylabel("Percentage")
         plot1 = ax1.plot(time, firstRoot, label = "active people", color='r')
@@ -409,8 +411,8 @@ for tr in tempRate:
         ax1.set_ylim(top = 1.25)
         ax2.set_ylim(top = 5)
         fig.tight_layout()
-        plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/root_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{:.3f}.pdf".format(long_save_name, namefile, a, c,
-            kk[0], kk[1], kk[2], a, c, strength, ets, tr))
+        plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/root_care{:.2f}_{:.2f}_{:.2f}_{:.2f}_{}.pdf".format(long_save_name, namefile, a, c,
+            kk[0], kk[1], kk[2], a, c, strength, ets, avg_degree))
         #plt.show()
         plt.clf()
         plt.close()
@@ -466,43 +468,19 @@ np.savetxt("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_
 np.savetxt("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/feedbacks_care{:.2f}_{:.2f}_{:.2f}_finalActive.txt".format(long_save_name, namefile, a, c,
     kk[0], kk[1], kk[2], a, c, strength), finalActive) 
 
-fig, ax1 = plt.subplots()
-plt.grid(True)
-plt.title("A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
-    a, c, ets, kk[0], kk[1], kk[2]))
-ax1.set_xlabel("Rate of Temperature Change from Active People")
-ax1.set_ylabel("Time All Elements Tipped")
-plot1 = ax1.plot(tempRate, finalTimes, label = "time", color='r')
-#plot2 = ax1.plot(tempRate, finalTipped, label = "tipped elements", color='g')
-
-ax2 = ax1.twinx()
-ax2.set_ylabel("GMT", color = 'b')
-plot3 = ax2.plot(tempRate, finalTemp, label="GMT", color='b')
-#plt.legend(loc='best')
-lns = plot1 + plot3
-labels = [l.get_label() for l in lns]
-plt.legend(lns, labels, loc=0)
-#ax1.set_ylim(top = 1.25)
-#ax2.set_ylim(top = 5)
-fig.tight_layout()
-plt.savefig("{}/{}_feedbacks/{:.2f}_{:.2f}/network_{}_{}_{}/ALL2_{:.2f}_{:.2f}_{:.2f}.pdf".format(long_save_name, namefile, a, c,
-    kk[0], kk[1], kk[2], a, c, strength))
-#plt.show()
-plt.clf()
-plt.close()   
 
 fig, ax1 = plt.subplots()
 plt.grid(True)
 plt.title("A: {:.2f} C: {:.2f} ETS: {:.2f}\n  Wa to Thc:{}  Am to Ni:{} Thc to Am:{}".format(
     a, c, ets, kk[0], kk[1], kk[2]))
-ax1.set_xlabel("Rate of Temperature Change from Active People")
+ax1.set_xlabel("Average Degree")
 ax1.set_ylabel("Percentage")
-plot1 = ax1.plot(tempRate, finalActive, label = "active people", color='r')
-plot2 = ax1.plot(tempRate, finalTipped, label = "tipped elements", color='g')
+plot1 = ax1.plot(degrees, finalActive, label = "active people", color='r')
+plot2 = ax1.plot(degrees, finalTipped, label = "tipped elements", color='g')
 
 ax2 = ax1.twinx()
 ax2.set_ylabel("GMT", color = 'b')
-plot3 = ax2.plot(tempRate, finalTemp, label="GMT", color='b')
+plot3 = ax2.plot(degrees, finalTemp, label="GMT", color='b')
 #plt.legend(loc='best')
 lns = plot1 + plot2 + plot3
 labels = [l.get_label() for l in lns]
